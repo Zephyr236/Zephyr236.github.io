@@ -21,40 +21,42 @@ jobs:
           import os
           import re
 
-          for root, dirs, files in os.walk('.'):
-            # Skip certain directories
-            if '.git' in root or '_layouts' in root:
-              continue
-            for filename in files:
-              if filename.endswith('.html'):
-                filepath = os.path.join(root, filename)
-                with open(filepath, 'r', encoding='utf-8') as f:
-                  content = f.read()
+          # Only process HTML files in articles/ directory
+          articles_dir = 'articles'
+          if not os.path.exists(articles_dir):
+            print(f"Directory {articles_dir} does not exist, skipping...")
+            exit(0)
 
-                # Skip if already has front matter
-                if content.startswith('---'):
-                  print(f"Skipping (has front matter): {filepath}")
-                  continue
+          for filename in os.listdir(articles_dir):
+            if filename.endswith('.html'):
+              filepath = os.path.join(articles_dir, filename)
+              with open(filepath, 'r', encoding='utf-8') as f:
+                content = f.read()
 
-                # Extract title
-                title_match = re.search(r'<title>(.*?)</title>', content)
-                title = title_match.group(1) if title_match else os.path.splitext(filename)[0]
+              # Skip if already has front matter
+              if content.startswith('---'):
+                print(f"Skipping (has front matter): {filepath}")
+                continue
 
-                # Extract body content
-                body_match = re.search(r'<body[^>]*>(.*?)</body>', content, re.DOTALL)
-                body_content = body_match.group(1) if body_match else content
+              # Extract title
+              title_match = re.search(r'<title>(.*?)</title>', content)
+              title = title_match.group(1) if title_match else os.path.splitext(filename)[0]
 
-                # Create new file with front matter
-                new_content = f'''---
+              # Extract body content
+              body_match = re.search(r'<body[^>]*>(.*?)</body>', content, re.DOTALL)
+              body_content = body_match.group(1) if body_match else content
+
+              # Create new file with front matter
+              new_content = f'''---
 layout: typora
 title: {title}
 ---
 
 {body_content}'''
 
-                with open(filepath, 'w', encoding='utf-8') as f:
-                  f.write(new_content)
-                print(f"Processed: {filepath}")
+              with open(filepath, 'w', encoding='utf-8') as f:
+                f.write(new_content)
+              print(f"Processed: {filepath}")
           EOF
 
       - name: Commit changes

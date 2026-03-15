@@ -18,24 +18,20 @@ title: Home
 
     {% assign html_count = 0 %}
     {% for file in site.static_files %}
-        {% if file.path contains '.html' %}
-            {% unless file.path contains 'index.html' or file.path contains '_layouts' %}
-                {% assign html_count = html_count | plus: 1 %}
-            {% endunless %}
+        {% if file.path contains '/articles/' and file.path ends_with '.html' %}
+            {% assign html_count = html_count | plus: 1 %}
         {% endif %}
     {% endfor %}
 
     {% if html_count > 0 %}
-    <h2>Articles</h2>
+    <h2>Typora Articles</h2>
     <ul class="post-list">
         {% for file in site.static_files %}
-            {% if file.path contains '.html' %}
-            {% unless file.path contains 'index.html' or file.path contains '_layouts' %}
+            {% if file.path contains '/articles/' and file.path ends_with '.html' %}
+            {% assign title = file.name | remove: '.html' | replace: '-', ' ' %}
             <li>
-                <span class="post-date">{{ file.name | slice: 0, 10 }}</span>
-                <a href="{{ file.url | relative_url }}">{{ file.name | remove: '.html' | replace: '-', ' ' }}</a>
+                <a href="{{ file.url | relative_url }}">{{ title }}</a>
             </li>
-            {% endunless %}
             {% endif %}
         {% endfor %}
     </ul>
