@@ -17,14 +17,13 @@ jobs:
 
       - name: Process HTML files
         run: |
-          python3 << 'EOF'
+          python3 -c "
           import os
           import re
 
-          # Only process HTML files in articles/ directory
           articles_dir = 'articles'
           if not os.path.exists(articles_dir):
-            print(f"Directory {articles_dir} does not exist, skipping...")
+            print(f'Directory {articles_dir} does not exist, skipping...')
             exit(0)
 
           for filename in os.listdir(articles_dir):
@@ -33,31 +32,27 @@ jobs:
               with open(filepath, 'r', encoding='utf-8') as f:
                 content = f.read()
 
-              # Skip if already has front matter
               if content.startswith('---'):
-                print(f"Skipping (has front matter): {filepath}")
+                print(f'Skipping (has front matter): {filepath}')
                 continue
 
-              # Extract title
               title_match = re.search(r'<title>(.*?)</title>', content)
               title = title_match.group(1) if title_match else os.path.splitext(filename)[0]
 
-              # Extract body content
               body_match = re.search(r'<body[^>]*>(.*?)</body>', content, re.DOTALL)
               body_content = body_match.group(1) if body_match else content
 
-              # Create new file with front matter
-              new_content = f'''---
+              new_content = '''---
 layout: typora
-title: {title}
+title: ''' + title + '''
 ---
 
-{body_content}'''
+''' + body_content
 
               with open(filepath, 'w', encoding='utf-8') as f:
                 f.write(new_content)
-              print(f"Processed: {filepath}")
-          EOF
+              print(f'Processed: {filepath}')
+          "
 
       - name: Commit changes
         run: |
