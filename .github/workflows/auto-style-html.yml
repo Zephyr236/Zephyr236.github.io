@@ -17,33 +17,45 @@ jobs:
 
       - name: Process HTML files
         run: |
-          for file in $(find . -name "*.html" -not -path "./.git/*" -not -path "./_layouts/*"); do
-            # Check if file already has Jekyll front matter
-            if ! grep -q '^---' "$file"; then
-              # Extract title from <title> tag
-              title=$(grep -oP '(?<=<title>).*(?=</title>)' "$file" | head -1)
-              if [ -z "$title" ]; then
-                title=$(basename "$file" .html)
-              fi
+          python3 << 'EOF'
+          import os
+          import re
 
-              # Extract body content properly
-              body_content=$(sed -n '/<body/,/<\/body>/p' "$file" | sed '1d;$d')
+          for root, dirs, files in os.walk('.'):
+            # Skip certain directories
+            if '.git' in root or '_layouts' in root:
+              continue
+            for filename in files:
+              if filename.endswith('.html'):
+                filepath = os.path.join(root, filename)
+                with open(filepath, 'r', encoding='utf-8') as f:
+                  content = f.read()
 
-              # Create temp file with front matter and body content only
-              temp_file=$(mktemp)
-              echo "---" > "$temp_file"
-              echo "layout: typora" >> "$temp_file"
-              echo "title: $title" >> "$temp_file"
-              echo "---" >> "$temp_file"
-              echo "$body_content" >> "$temp_file"
+                # Skip if already has front matter
+                if content.startswith('---'):
+                  print(f"Skipping (has front matter): {filepath}")
+                  continue
 
-              # Replace original file
-              mv "$temp_file" "$file"
-              echo "Processed: $file"
-            else
-              echo "Skipping (already has front matter): $file"
-            fi
-          done
+                # Extract title
+                title_match = re.search(r'<title>(.*?)</title>', content)
+                title = title_match.group(1) if title_match else os.path.splitext(filename)[0]
+
+                # Extract body content
+                body_match = re.search(r'<body[^>]*>(.*?)</body>', content, re.DOTALL)
+                body_content = body_match.group(1) if body_match else content
+
+                # Create new file with front matter
+                new_content = f'''---
+layout: typora
+title: {title}
+---
+
+{body_content}'''
+
+                with open(filepath, 'w', encoding='utf-8') as f:
+                  f.write(new_content)
+                print(f"Processed: {filepath}")
+          EOF
 
       - name: Commit changes
         run: |
