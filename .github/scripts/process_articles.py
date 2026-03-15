@@ -64,9 +64,9 @@ if os.path.exists(articles_dir):
             content = re.sub(r'<link rel="stylesheet" href="assets/css/style.css">\s*<style>.*?</style>', '', content, flags=re.DOTALL)
             content = re.sub(r'<link rel="stylesheet" href="\.\./assets/css/style.css">\s*<style>.*?</style>', '', content, flags=re.DOTALL)
 
-            # Remove old header and footer
-            content = re.sub(r'<header>.*?</header>', '', content, flags=re.DOTALL)
-            content = re.sub(r'<footer>.*?</footer>', '', content, flags=re.DOTALL)
+            # Remove old header and footer (our added ones)
+            content = re.sub(r'<header style="text-align: center;.*?</header>', '', content, flags=re.DOTALL)
+            content = re.sub(r'<footer style="margin-top:.*?</footer>', '', content, flags=re.DOTALL)
 
             # Add CSS if not present
             if 'href="assets/css/style.css"' not in content:
