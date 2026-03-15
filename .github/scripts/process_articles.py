@@ -24,6 +24,23 @@ css_style = '''<link rel="stylesheet" href="assets/css/style.css">
         mjx-container { display: block !important; text-align: center !important; margin: 20px auto !important; }
     </style>'''
 
+# Header and footer HTML
+header_html = '''
+    <header style="text-align: center; padding: 30px 0; margin-bottom: 30px;">
+        <a href="index.html" class="site-title" style="font-family: 'Lora', Georgia, serif; font-size: 2.2em; color: #5d5d5d; text-decoration: none; letter-spacing: 2px;">Zephyr's Blog</a>
+        <nav style="display: flex; justify-content: center; gap: 30px; margin-top: 20px;">
+            <a href="index.html" style="text-decoration: none; color: #8a7f7d;">Home</a>
+            <a href="about.html" style="text-decoration: none; color: #8a7f7d;">About</a>
+        </nav>
+    </header>
+'''
+
+footer_html = '''
+    <footer style="margin-top: 60px; padding-top: 30px; border-top: 1px solid #e8e0d8; text-align: center; color: #a0908d; font-size: 0.85em;">
+        <p>&copy; 2026 Zephyr. All rights reserved.</p>
+    </footer>
+'''
+
 # Process HTML files in articles directory
 articles = []
 if os.path.exists(articles_dir):
@@ -47,18 +64,25 @@ if os.path.exists(articles_dir):
             content = re.sub(r'<link rel="stylesheet" href="assets/css/style.css">\s*<style>.*?</style>', '', content, flags=re.DOTALL)
             content = re.sub(r'<link rel="stylesheet" href="\.\./assets/css/style.css">\s*<style>.*?</style>', '', content, flags=re.DOTALL)
 
+            # Remove old header and footer
+            content = re.sub(r'<header>.*?</header>', '', content, flags=re.DOTALL)
+            content = re.sub(r'<footer>.*?</footer>', '', content, flags=re.DOTALL)
+
             # Add CSS if not present
             if 'href="assets/css/style.css"' not in content:
                 content = content.replace("<head>", "<head>\n    " + css_style)
-                with open(filepath, "w", encoding="utf-8") as f:
-                    f.write(content)
-                print(f"Styled: {filepath}")
             else:
-                # Update existing
                 content = content.replace('href="assets/css/style.css">', 'href="assets/css/style.css">\n    ' + css_style)
-                with open(filepath, "w", encoding="utf-8") as f:
-                    f.write(content)
-                print(f"Updated: {filepath}")
+
+            # Add header before body content
+            content = content.replace('<body>', '<body>\n' + header_html)
+
+            # Add footer before closing body tag
+            content = content.replace('</body>', footer_html + '\n</body>')
+
+            with open(filepath, "w", encoding="utf-8") as f:
+                f.write(content)
+            print(f"Styled: {filepath}")
 
 print(f"Found {len(articles)} articles")
 
