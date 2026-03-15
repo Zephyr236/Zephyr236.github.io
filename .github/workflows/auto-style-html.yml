@@ -26,8 +26,8 @@ jobs:
                 title=$(basename "$file" .html)
               fi
 
-              # Extract body content only (between <body> and </body>)
-              body_content=$(sed -n '/<body>/,/<\/body>/p' "$file" | sed '1d;$d')
+              # Extract body content - handle <body> with attributes
+              body_content=$(sed -n 's/<body[^>]*>//;s/<\/body>//;p' "$file")
 
               # Create temp file with front matter and body content only
               temp_file=$(mktemp)
