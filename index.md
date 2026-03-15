@@ -17,9 +17,9 @@ title: Home
     </ul>
 
     {% assign html_count = 0 %}
-    {% for file in site.static_files %}
-        {% if file.path contains '/articles/' %}
-            {% assign ext = file.name | split: '.' | last %}
+    {% for page in site.pages %}
+        {% if page.path contains '/articles/' %}
+            {% assign ext = page.path | split: '.' | last %}
             {% if ext == 'html' %}
                 {% assign html_count = html_count | plus: 1 %}
             {% endif %}
@@ -29,13 +29,12 @@ title: Home
     {% if html_count > 0 %}
     <h2>Typora Articles</h2>
     <ul class="post-list">
-        {% for file in site.static_files %}
-            {% if file.path contains '/articles/' %}
-                {% assign ext = file.name | split: '.' | last %}
+        {% for page in site.pages %}
+            {% if page.path contains '/articles/' %}
+                {% assign ext = page.path | split: '.' | last %}
                 {% if ext == 'html' %}
-                {% assign title = file.name | remove: '.html' | replace: '-', ' ' %}
                 <li>
-                    <a href="{{ file.url | relative_url }}">{{ title }}</a>
+                    <a href="{{ page.url | relative_url }}">{{ page.title }}</a>
                 </li>
                 {% endif %}
             {% endif %}
