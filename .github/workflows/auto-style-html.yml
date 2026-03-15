@@ -3,12 +3,8 @@ name: Auto Style HTML Articles
 on:
   push:
     branches: [main]
-    paths:
-      - '**.html'
   pull_request:
     branches: [main]
-    paths:
-      - '**.html'
 
 permissions:
   contents: write
