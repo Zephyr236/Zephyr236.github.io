@@ -18,8 +18,11 @@ title: Home
 
     {% assign html_count = 0 %}
     {% for file in site.static_files %}
-        {% if file.path contains '/articles/' and file.path ends_with '.html' %}
-            {% assign html_count = html_count | plus: 1 %}
+        {% if file.path contains '/articles/' %}
+            {% assign ext = file.name | split: '.' | last %}
+            {% if ext == 'html' %}
+                {% assign html_count = html_count | plus: 1 %}
+            {% endif %}
         {% endif %}
     {% endfor %}
 
@@ -27,11 +30,14 @@ title: Home
     <h2>Typora Articles</h2>
     <ul class="post-list">
         {% for file in site.static_files %}
-            {% if file.path contains '/articles/' and file.path ends_with '.html' %}
-            {% assign title = file.name | remove: '.html' | replace: '-', ' ' %}
-            <li>
-                <a href="{{ file.url | relative_url }}">{{ title }}</a>
-            </li>
+            {% if file.path contains '/articles/' %}
+                {% assign ext = file.name | split: '.' | last %}
+                {% if ext == 'html' %}
+                {% assign title = file.name | remove: '.html' | replace: '-', ' ' %}
+                <li>
+                    <a href="{{ file.url | relative_url }}">{{ title }}</a>
+                </li>
+                {% endif %}
             {% endif %}
         {% endfor %}
     </ul>
