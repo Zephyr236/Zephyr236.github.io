@@ -13,6 +13,7 @@ permalink: /:title/
 # Include HTML files in build
 include:
   - .github
+  - articles
   - '*.html'
 
 # Keep static HTML files in output
