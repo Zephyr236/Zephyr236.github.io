@@ -8,19 +8,37 @@ permissions:
   contents: write
 
 jobs:
-  inject-standalone-class:
+  process-html-articles:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: main
 
-      - name: Inject standalone class
+      - name: Process HTML files
         run: |
           for file in $(find . -name "*.html" -not -path "./.git/*" -not -path "./_layouts/*"); do
-            if ! grep -q 'class="standalone"' "$file" && grep -q '<body>' "$file"; then
-              sed -i 's/<body>/<body class="standalone">/g' "$file"
-              echo "Updated: $file"
+            # Check if file already has Jekyll front matter
+            if ! grep -q '^---' "$file"; then
+              # Extract title from <title> tag
+              title=$(grep -oP '(?<=<title>).*(?=</title>)' "$file" | head -1)
+              if [ -z "$title" ]; then
+                title=$(basename "$file" .html)
+              fi
+
+              # Create temp file with front matter
+              temp_file=$(mktemp)
+              echo "---" > "$temp_file"
+              echo "layout: typora" >> "$temp_file"
+              echo "title: $title" >> "$temp_file"
+              echo "---" >> "$temp_file"
+              cat "$file" >> "$temp_file"
+
+              # Replace original file
+              mv "$temp_file" "$file"
+              echo "Added front matter to: $file"
+            else
+              echo "Skipping (already has front matter): $file"
             fi
           done
 
@@ -29,5 +47,5 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add -A
-          git diff --staged --quiet || git commit -m "Auto: Add standalone class"
+          git diff --staged --quiet || git commit -m "Auto: Add Jekyll front matter to HTML articles"
           git push
