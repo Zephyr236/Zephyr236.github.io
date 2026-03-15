@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+from datetime import datetime
 
 articles_dir = "articles"
 template_file = "index.template.html"
@@ -74,7 +75,8 @@ if os.path.exists(articles_dir):
             articles.append({
                 "title": title,
                 "url": articles_dir + "/" + filename,
-                "date": date_formatted
+                "date": date_formatted,
+                "date_obj": datetime.strptime(date_str, '%Y-%m-%d') if date_match else datetime.min
             })
 
             # Remove existing custom CSS and add fresh one
@@ -103,6 +105,9 @@ if os.path.exists(articles_dir):
             print(f"Styled: {filepath}")
 
 print(f"Found {len(articles)} articles")
+
+# Sort articles by date (newest first)
+articles.sort(key=lambda x: x["date_obj"], reverse=True)
 
 # Read template
 if not os.path.exists(template_file):
