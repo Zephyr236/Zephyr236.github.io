@@ -4,19 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zephyr's Blog</title>
-    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
-    <style>
-        .article-list { list-style: none; padding: 0; }
-        .article-list li { padding: 15px 0; border-bottom: 1px dashed #e8e0d8; }
-        .article-list a { color: #5d5d5d; font-family: 'Lora', Georgia, serif; font-size: 1.1em; }
-    </style>
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
     <header>
-        <a href="{{ '/' | relative_url }}" class="site-title">Zephyr's Blog</a>
+        <a href="index.html" class="site-title">Zephyr's Blog</a>
         <nav>
-            <a href="{{ '/' | relative_url }}">Home</a>
-            <a href="{{ '/about' | relative_url }}">About</a>
+            <a href="index.html">Home</a>
+            <a href="about.html">About</a>
         </nav>
     </header>
 
@@ -25,12 +20,8 @@
 
         <h2>Recent Posts</h2>
         <ul class="post-list">
-{% for post in site.posts %}
-            <li>
-                <span class="post-date">{{ post.date | date: "%B %d, %Y" }}</span>
-                <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-            </li>
-{% endfor %}
+            <li><span class="post-date">March 09, 2026</span><a href="_posts/2026-03-09-decision-mathematical-principles.html">Decision Mathematical Principles</a></li>
+            <li><span class="post-date">March 14, 2026</span><a href="_posts/2026-03-14-decision-solving-algorithms.html">Decision Solving Algorithms</a></li>
         </ul>
 
         <h2>Typora Articles</h2>
@@ -40,17 +31,16 @@
     </main>
 
     <footer>
-        <p>&copy; {{ site.time | date: '%Y' }} Zephyr. All rights reserved.</p>
+        <p>&copy; 2026 Zephyr. All rights reserved.</p>
     </footer>
 
     <script>
-        // Load articles list from JSON
-        fetch('{{ "/articles.json" | relative_url }}')
+        fetch('articles.json')
             .then(response => response.json())
             .then(articles => {
                 const list = document.getElementById('typora-articles');
                 if (articles.length === 0) {
-                    list.innerHTML = '<li>No articles yet. Upload HTML files to the articles/ folder.</li>';
+                    list.innerHTML = '<li>No articles yet.</li>';
                     return;
                 }
                 list.innerHTML = articles.map(article =>

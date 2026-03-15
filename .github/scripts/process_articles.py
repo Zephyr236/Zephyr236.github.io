@@ -10,10 +10,10 @@ if not os.path.exists(articles_dir):
     exit(0)
 
 articles = []
-css_style = """<link rel="stylesheet" href="/assets/css/style.css">
+css_style = '''<link rel="stylesheet" href="assets/css/style.css">
     <style>
         body { max-width: 800px; margin: 0 auto; padding: 40px 20px; background: linear-gradient(135deg, #fdfbf7 0%, #faf5f0 100%); min-height: 100vh; }
-        h1, h2, h3 { font-family: "Lora", Georgia, serif; color: #4a4a4a; }
+        h1, h2, h3 { font-family: 'Lora', Georgia, serif; color: #4a4a4a; }
         h1 { border-bottom: 2px solid #e8e0d8; padding-bottom: 0.4em; }
         h2 { border-bottom: 1px solid #e8e0d8; padding-bottom: 0.3em; }
         a { color: #b8a5a2; }
@@ -24,7 +24,7 @@ css_style = """<link rel="stylesheet" href="/assets/css/style.css">
         pre { background-color: #faf5f0; padding: 20px; border-radius: 8px; overflow-x: auto; border: 1px solid #e8e0d8; }
         code { background-color: #f5efe9; padding: 3px 8px; border-radius: 4px; }
         blockquote { border-left: 3px solid #d4c4c0; margin: 25px 0; padding: 15px 25px; background-color: #faf5f0; border-radius: 0 8px 8px 0; }
-    </style>"""
+    </style>'''
 
 for filename in sorted(os.listdir(articles_dir)):
     if filename.endswith(".html"):
@@ -37,10 +37,10 @@ for filename in sorted(os.listdir(articles_dir)):
 
         articles.append({
             "title": title,
-            "url": "/" + articles_dir + "/" + filename
+            "url": articles_dir + "/" + filename
         })
 
-        if 'href="/assets/css/style.css"' not in content:
+        if 'href="assets/css/style.css"' not in content:
             content = content.replace("<head>", "<head>\n    " + css_style)
             with open(filepath, "w", encoding="utf-8") as f:
                 f.write(content)
