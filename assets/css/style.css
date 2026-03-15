@@ -290,12 +290,12 @@ footer {
     font-size: 0.85em;
 }
 
-/* KaTeX Math - 适配温柔风格 */
-.katex {
-    font-size: 1.1em;
+/* MathJax - 适配温柔风格 */
+mjx-container {
+    margin: 20px 0;
 }
 
-.katex-display {
+mjx-container[jax="CHTML"][display="true"] {
     margin: 30px auto;
     padding: 20px;
     background-color: #faf5f0;
@@ -304,11 +304,6 @@ footer {
     text-align: center;
     display: block;
     max-width: 100%;
-}
-
-.katex-display > .katex {
-    text-align: center;
-    display: block;
 }
 
 /* Image */
