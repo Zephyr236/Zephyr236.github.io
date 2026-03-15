@@ -55,32 +55,36 @@ if not os.path.exists(index_file):
     sys.exit(1)
 
 with open(index_file, "r", encoding="utf-8") as f:
-    index_content = f.read()
+    lines = f.readlines()
 
-# Find and replace the article list section
-old_marker = '<ul class="post-list" id="typora-articles">'
-end_marker = '</ul>'
+# Find the line with id="typora-articles"
+start_idx = -1
+end_idx = -1
+for i, line in enumerate(lines):
+    if 'id="typora-articles"' in line:
+        start_idx = i
+    if start_idx > 0 and '</ul>' in line and i > start_idx:
+        end_idx = i
+        break
 
-if old_marker in index_content:
-    # Find the start position
-    start_pos = index_content.find(old_marker)
-    # Find the end position
-    end_pos = index_content.find(end_marker, start_pos) + len(end_marker)
+print(f"Found start_idx={start_idx}, end_idx={end_idx}")
 
-    # Build new section
+if start_idx > 0 and end_idx > 0:
+    # Build new content
+    new_lines = lines[:start_idx + 1]  # Keep everything up to and including <ul>
+
     if len(articles) == 0:
-        new_section = old_marker + '\n            <li>No articles yet.</li>\n        ' + end_marker
+        new_lines.append('            <li>No articles yet.</li>\n')
     else:
-        items = []
         for article in articles:
-            items.append(f'            <li><a href="{article["url"]}">{article["title"]}</a></li>')
-        new_section = old_marker + '\n' + '\n'.join(items) + '\n        ' + end_marker
+            new_lines.append(f'            <li><a href="{article["url"]}">{article["title"]}</a></li>\n')
 
-    # Replace
-    index_content = index_content[:start_pos] + new_section + index_content[end_pos:]
+    new_lines.append('        </ul>\n')  # Add closing tag
+    new_lines.extend(lines[end_idx + 1:])  # Add rest of file
 
     with open(index_file, "w", encoding="utf-8") as f:
-        f.write(index_content)
+        f.writelines(new_lines)
+
     print(f"Updated index.html with {len(articles)} articles")
 else:
-    print("Could not find typora-articles section in index.html")
+    print("Could not find the article list section")
