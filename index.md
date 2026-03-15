@@ -16,17 +16,28 @@ title: Home
         {% endfor %}
     </ul>
 
+    {% assign html_count = 0 %}
+    {% for file in site.static_files %}
+        {% if file.path contains '.html' %}
+            {% unless file.path contains 'index.html' or file.path contains '_layouts' %}
+                {% assign html_count = html_count | plus: 1 %}
+            {% endunless %}
+        {% endif %}
+    {% endfor %}
+
+    {% if html_count > 0 %}
     <h2>Articles</h2>
     <ul class="post-list">
         {% for file in site.static_files %}
             {% if file.path contains '.html' %}
-            {% unless file.path contains 'index.html' or file.path contains '_layouts' or file.path contains '_includes' %}
+            {% unless file.path contains 'index.html' or file.path contains '_layouts' %}
             <li>
-                <span class="post-date">{{ file.path | slice: 1, 10 }}</span>
-                <a href="{{ file.url | relative_url }}">{{ file.name | remove: '.html' | replace: '-', ' ' | capitalize }}</a>
+                <span class="post-date">{{ file.name | slice: 0, 10 }}</span>
+                <a href="{{ file.url | relative_url }}">{{ file.name | remove: '.html' | replace: '-', ' ' }}</a>
             </li>
             {% endunless %}
             {% endif %}
         {% endfor %}
     </ul>
+    {% endif %}
 </div>
