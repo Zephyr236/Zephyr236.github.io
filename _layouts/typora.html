@@ -1,67 +1,61 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
-<title>{{ page.title }}</title>
-<link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page.title }}</title>
+    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
 
-<!-- MathJax for LaTeX math support -->
-<script>
-window.MathJax = {
-    tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']]
-    },
-    svg: {
-        fontCache: 'global'
-    }
-};
-</script>
-<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <!-- MathJax for LaTeX math support -->
+    <script>
+    window.MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        },
+        svg: {
+            fontCache: 'global'
+        }
+    };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 
-<style>
-    body {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 40px 20px;
-    }
-    /* Typora 表格样式 */
-    table {
-        border-collapse: collapse;
-        width: 100%;
-        margin: 20px 0;
-    }
-    table th, table td {
-        border: 1px solid #ddd;
-        padding: 10px;
-        text-align: center;
-    }
-    table th {
-        background-color: #f5efe9;
-    }
-    /* Typora 图片样式 */
-    img {
-        max-width: 100%;
-        height: auto;
-        display: block;
-        margin: 20px auto;
-    }
-    /* Typora 列表样式 */
-    ol, ul {
-        padding-left: 25px;
-    }
-    li {
-        margin: 8px 0;
-    }
-    /* 居中表格 */
-    center table {
-        display: inline-block;
-    }
-    center {
-        text-align: center;
-        margin: 20px 0;
-    }
-</style>
+    <!-- Typora exported content styles -->
+    <style>
+        /* Tables from Typora */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        table th {
+            background-color: #f5efe9;
+        }
+        /* Images from Typora */
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 20px auto;
+        }
+        /* Lists from Typora */
+        ol, ul {
+            padding-left: 25px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        /* Centered content */
+        center {
+            text-align: center;
+            margin: 20px 0;
+        }
+    </style>
 </head>
 <body>
     <header>

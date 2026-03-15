@@ -26,17 +26,20 @@ jobs:
                 title=$(basename "$file" .html)
               fi
 
-              # Create temp file with front matter
+              # Extract body content only (between <body> and </body>)
+              body_content=$(sed -n '/<body>/,/<\/body>/p' "$file" | sed '1d;$d')
+
+              # Create temp file with front matter and body content only
               temp_file=$(mktemp)
               echo "---" > "$temp_file"
               echo "layout: typora" >> "$temp_file"
               echo "title: $title" >> "$temp_file"
               echo "---" >> "$temp_file"
-              cat "$file" >> "$temp_file"
+              echo "$body_content" >> "$temp_file"
 
               # Replace original file
               mv "$temp_file" "$file"
-              echo "Added front matter to: $file"
+              echo "Processed: $file"
             else
               echo "Skipping (already has front matter): $file"
             fi
@@ -47,5 +50,5 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add -A
-          git diff --staged --quiet || git commit -m "Auto: Add Jekyll front matter to HTML articles"
+          git diff --staged --quiet || git commit -m "Auto: Process HTML articles for Jekyll"
           git push
