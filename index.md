@@ -34,7 +34,7 @@ title: Home
                 {% assign ext = file.name | split: '.' | last %}
                 {% if ext == 'html' %}
                 <li>
-                    <a href="{{ file.url | relative_url }}">{{ file.name | remove: '.html' }}</a>
+                    <a href="{{ file.path | relative_url }}">{{ file.name | remove: '.html' }}</a>
                 </li>
                 {% endif %}
             {% endif %}
