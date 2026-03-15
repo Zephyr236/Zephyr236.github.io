@@ -21,6 +21,7 @@ css_style = '''<link rel="stylesheet" href="assets/css/style.css">
         pre { background-color: #faf5f0; padding: 20px; border-radius: 8px; overflow-x: auto; border: 1px solid #e8e0d8; }
         code { background-color: #f5efe9; padding: 3px 8px; border-radius: 4px; }
         blockquote { border-left: 3px solid #d4c4c0; margin: 25px 0; padding: 15px 25px; background-color: #faf5f0; border-radius: 0 8px 8px 0; }
+        mjx-container { display: block !important; text-align: center !important; margin: 20px auto !important; }
     </style>'''
 
 # Process HTML files in articles directory
