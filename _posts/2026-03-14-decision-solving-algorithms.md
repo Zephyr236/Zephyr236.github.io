@@ -787,7 +787,7 @@ $$
 - $\Delta\theta_0 \approx [-0.01476, 0.04429, -0.01476, -0.01476]^T$
 - $\Delta\theta_4 \approx [-0.01640, 0.04921, -0.01640, -0.01640]^T$
 
-然后更新参数，例如 $\theta^{\prime}_{0,1} = 0 + 0.04429 = 0.04429$，$\theta^{\prime}_{14,2} = 0 + 0.075 = 0.075$。
+然后更新参数，例如 $\theta_{\text{new},0,1} = 0.04429$，$\theta_{\text{new},14,2} = 0.075$。
 
 
 
@@ -931,9 +931,9 @@ $$
 
 将上面的推导一步步拆开来看：
 
-- 目标值 (Target): $(\text{target})_t = r_{t+1} + \gamma V_\pi(s_{t+1})$
+- 目标值 (Target): $T_t = r_{t+1} + \gamma V_\pi(s_{t+1})$，其中 $T_t$ 是目标值
 - 预测值 (Prediction): $V(s_t; w)$
-- 误差 (Error): $\delta_t^{\text{true}} = (\text{target})_t - V(s_t; w)$
+- 误差 (Error): $\delta_t^{\text{true}} = T_t - V(s_t; w)$
 
 
 
