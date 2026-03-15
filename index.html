@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zephyr's Blog</title>
+    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+    <style>
+        .article-list { list-style: none; padding: 0; }
+        .article-list li { padding: 15px 0; border-bottom: 1px dashed #e8e0d8; }
+        .article-list a { color: #5d5d5d; font-family: 'Lora', Georgia, serif; font-size: 1.1em; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{{ '/' | relative_url }}" class="site-title">Zephyr's Blog</a>
+        <nav>
+            <a href="{{ '/' | relative_url }}">Home</a>
+            <a href="{{ '/about' | relative_url }}">About</a>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Welcome to Zephyr's Blog</h1>
+
+        <h2>Recent Posts</h2>
+        <ul class="post-list">
+{% for post in site.posts %}
+            <li>
+                <span class="post-date">{{ post.date | date: "%B %d, %Y" }}</span>
+                <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+            </li>
+{% endfor %}
+        </ul>
+
+        <h2>Typora Articles</h2>
+        <ul class="post-list" id="typora-articles">
+            <li>Loading articles...</li>
+        </ul>
+    </main>
+
+    <footer>
+        <p>&copy; {{ site.time | date: '%Y' }} Zephyr. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Load articles list from JSON
+        fetch('{{ "/articles.json" | relative_url }}')
+            .then(response => response.json())
+            .then(articles => {
+                const list = document.getElementById('typora-articles');
+                if (articles.length === 0) {
+                    list.innerHTML = '<li>No articles yet. Upload HTML files to the articles/ folder.</li>';
+                    return;
+                }
+                list.innerHTML = articles.map(article =>
+                    '<li><a href="' + article.url + '">' + article.title + '</a></li>'
+                ).join('');
+            })
+            .catch(() => {
+                document.getElementById('typora-articles').innerHTML = '<li>No articles yet.</li>';
+            });
+    </script>
+</body>
+</html>
