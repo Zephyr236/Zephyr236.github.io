@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+<title>多智能体科研系统FARS生成论文阅读</title>
+</head>
+<body><h1 id='fars'>FARS</h1>
+<p>FARS (Fully Automated Research System)全自动科研系统，由上海日行迹智能科技有限公司（Analemma）发布。上海日行迹智能科技有限公司（Analemma），一家由复旦大学对话式大型语言模型MOSS团队核心成员发起的人工智能基础技术公司。公司官网为analemma.ai。</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260225131727947.png" alt="image-20260225131727947"></p>
+<p>目前并未公开源代码，在<a href='https://analemma.ai/fars'>Live - Analemma | Analemma</a>中发布了实时的运行效果</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260225131743400.png" alt="image-20260225131743400"></p>
+<p>运行结果可以发布在<a href='https://gitlab.com/fars-a' target='_blank' class='url'>https://gitlab.com/fars-a</a>中</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260225131935917.png" alt="image-20260225131935917"></p>
+<p>可以看到会有失败的论文</p>
+<p>&nbsp;</p>
+<h1 id='效果评估'>效果评估</h1>
+<h2 id='distance-hiding-fingerprints-for-text-embeddings-via-secure-simhash'>Distance-Hiding Fingerprints for Text Embeddings via Secure SimHash</h2>
+<p><img src="./assets/image-20260225132033740.png" alt="image-20260225132033740"></p>
+<p>其中有一篇关于simhash的研究</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260225132324941.png" alt="image-20260225132324941"></p>
+<p>下载下了有一个类似todo list之类的markdown文档,里面写了背景、如何实验、如何判断成功标准、还有引用</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260225132730647.png" alt="image-20260225132730647"></p>
+<p>将其翻译成了中文。</p>
+<p>&nbsp;</p>
+<h3 id='背景'>背景</h3>
+<p><img src="./assets/image-20260225133159467.png" alt="image-20260225133159467"></p>
+<p>背景中提到二进制指纹和BinaryShield</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260225133403869.png" alt="image-20260225133403869"></p>
+<p>这个BinaryShield的作用是把一些提示词转成不可逆的指纹，大模型公司共享这些指纹来应对攻击者如(提示注入攻击)。</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260225134057936.png" alt="image-20260225134057936"></p>
+<p>然后指出上面的背景中介绍的技术存在哪些问题(核心问题是能推断出原文的距离)。</p>
+<p>意思是像simhash这样的方式攻击者可能根据simhash的距离反推出来原文的距离，就算使用BinaryShield也会存在问题，因为BinaryShield随机的把比特位翻转了（BinaryShield即使随机翻转还能确保判断相似的原因是，假如两段二进制串，都以75%的概率比特位翻转，最终他们还是相似的因为总会有重叠的部分，被叫做<strong>随机响应</strong>）</p>
+<p>然后拿到BinaryShield生成的指纹，虽然原文被破坏了但是相似性还在，文中认为就算这样依然能推断出原文的距离。</p>
+<p>攻击手法：我有足够多的明文和指纹，首先计算明文的相似度，然后在计算指纹直接的相似度，通过这种方式我能知道，一个比值，而这个比值(斜率)。现在我拿到了两个指纹的相似度，由此根据这个斜率我就能从指纹的相似度推断出原文的相似度。</p>
+<p>&nbsp;</p>
+<p>文中所提到的碰撞概率就是统计出来的平均相似度的意思。</p>
+<p>&nbsp;</p>
+<p>核心的问题在于攻击者能统计出来一个斜率，所以本文希望找到一中无法统计出来斜率的方式。</p>
+<p>&nbsp;</p>
+<h4 id='小结'>小结</h4>
+<p>看了研究背景和问题阐述我感觉好像没有问题。</p>
+<p>&nbsp;</p>
+<h3 id='研究现况'>研究现况</h3>
+<p><img src="./assets/image-20260225142006647.png" alt="image-20260225142006647"></p>
+<p>写了一段其他人的研究情况，其中提到了安全SimHash</p>
+<p>标准simhash是，先分词分词后对每一个词进行hash，hash值作为一个列向量假设长度位m，假如有n个词，则得到一个m<strong>*</strong>n的一个矩阵A，然后再把n词转成一个值并组成一个列向量得到一个n<strong>*</strong>1的矩阵B，A<strong>*</strong>B得到一个m<strong>*</strong>1的向量C，然后大于0的写成-1，小于0的写成1，这样子就得到了一个空间中的向量D，计算这个向量的夹角即可判断相似度。</p>
+<p>&nbsp;</p>
+<p>标准simhash中是D[i]=sign(C[i]),就是这一步会导致能统计出来碰撞概率，因为他只是判断了方向，某一个比特的方向对了那就是相似，方向反了就是不相似，概率只有50%，例如1000和1都是一个方向，所以都会被判断为相似，这就导致统计出来的曲线非常好看。</p>
+<p>&nbsp;</p>
+<p>安全simhash不再采用D[i]=sign(C[i])，而是再独立计算每一个比特例如C[i]，使用不同的hash函数计算K次得到C[i1], C[i2], ..., C[iK]。</p>
+<p>然后再取一次符号，b1 = sign(C[i1]), b2 = sign(C[i2]), ..., bK = sign(C[iK])，最终选取一个H函数，final_bit[i] = H(b1, b2, ..., bK)</p>
+<p>这样子我们就得到了新的向量E，这个向量E的不同之处在于，原先1000和1都是一个方向，现在很大的可能不是了,这样就会导致差异被放大，但是1和1还是一个方向。</p>
+<p>经过安全simhash这样子操作后，绘制出来的曲线，会呈现相似的还是相似，不相似的会剧烈震荡，画出来的图像就看不出来斜率了。</p>
+<p>&nbsp;</p>
+<p>文中的单位比特碰撞概率的含义应该是，两个向量在同一个同一个空间中同一侧的概率。安全simhash，这样子操作后就会导致这个概率急速降低，而标准simhash单纯使用符号函数，这个概率就会很高。</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260225153414726.png" alt="image-20260225153414726"></p>
+<p>确实是能在他的参考文献中找到，该思路来自《Sub-Linear Privacy-Preserving Near-Neighbor Search》</p>
+<p>&nbsp;</p>
+<h3 id='基于研究现况提出问题'>基于研究现况提出问题</h3>
+<p><img src="./assets/image-20260225151351638.png" alt="image-20260225151351638"></p>
+<p>提出了两个问题</p>
+<p>1.介于相似和不相似之间的句子可能会被影响导致检索相似句子的时候质量降低</p>
+<p>2.攻击者不仅仅只能统计相似度，还可能统计其他的比如用什么哈希函数H来获取更多的信息</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h4 id='小结-2'>小结</h4>
+<p>提出的第二个问题，利用完整的比特模式来获取更多的信息，这真的可能吗？套了这么多层hash，想要从这么多层hash中再统计出来两个向量在同一个同一个空间中同一侧的概率这个有点难吧，但话不能说的这么绝对。</p>
+<p>第一个问题应该是比较重要的，攻击者如果在统计的过程中将某些词修改成了相似词，就会导致被判断为不相似，这样子确实是无法很好的绘制出曲线，但是威胁情报共享的时候也会出现这个问题吧，最终会导致只能共享情报的效果大大降低，变成了一种隐私-效率权衡。</p>
+<p>&nbsp;</p>
+<h3 id='提出方法'>提出方法</h3>
+<p><img src="./assets/image-20260225152432011.png" alt="image-20260225152432011"></p>
+<p>这里他出现了第一次矛盾</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260225152452043.png" alt="image-20260225152452043"></p>
+<p>安全simhash并非该论文中提出的方法</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260225152521548.png" alt="image-20260225152521548"></p>
+<p>他在前往中也之处了是Riazi等人</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260225154231954.png" alt="image-20260225154231954"></p>
+<p>我实在看不懂英文，我让ai给我翻译了一下这段话。文中写到<code>用于文本嵌入向量评估</code>，也就是说它提出的是一种评估方法。</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260225154723985.png" alt="image-20260225154723985"></p>
+<p>在后文中又写到<code>我们的方法：Secure SimHash（距离隐藏）</code>，这里也产生矛盾了，到底是评估方法还是距离隐藏。</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260225155027985.png" alt="image-20260225155027985"></p>
+<p>在创新点中提到<code>Transformer的句子</code>，这里的原文是<code>transformer-based sentence embeddings</code></p>
+<p>他这里弄混淆了一个概念，simhash的一种局限相似性的算法，而<code>transformer-based sentence embeddings</code>他指的应该是词向量组成的句子，这个本身就是相似的，并且不会受到是否为词向量所影响，一个是局部相似性、一个是词与词相似性，如果安全 SimHash那<code>transformer-based sentence embeddings</code>肯定是没问题的</p>
+<p>&nbsp;</p>
+<h4 id='小结-3'>小结</h4>
+<p>到这里开始问题就出现了，存在如下三个问题</p>
+<p>1.安全simhash并非该论文中提出的方法</p>
+<p>2.提出的解决方案存在前后矛盾</p>
+<p>3.疑似存在概念混淆</p>
+<p>&nbsp;</p>
+<p>其中1已经算是论文抄袭了。</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h3 id='实验设计'>实验设计</h3>
+<p><img src="./assets/image-20260225160424130.png" alt="image-20260225160424130"></p>
+<p>他所设计的实验是围绕这个安全simhash，进行对比。</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260225160551615.png" alt="image-20260225160551615"></p>
+<p>他预期得到的结果是，simhash是否能保护隐私。</p>
+<p>他前文中提出的问题是<code>攻击者不仅仅只能统计相似度，还可能统计其他的比如用什么哈希函数H来获取更多的信息</code></p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260225160836925.png" alt="image-20260225160836925"></p>
+<p>他设计了两个攻击者，弱攻击者在前文中并非他所提出的问题，强攻击者为重点，采用的是MLP输入两个指纹异或后的结果。</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260225161341051.png" alt="image-20260225161341051"></p>
+<p>输入两个指纹进行分类，理想状态下AUC为0.5也就意味着无法猜测，也就意味着无法反推从信息。</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260225163325856.png" alt="image-20260225163325856"></p>
+<p>预估资源就不是单纯靠agent能解决的了</p>
+<p>&nbsp;</p>
+<h4 id='小结-4'>小结</h4>
+<p>这个实验设计感觉上是合理的。</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h1 id='总结'>总结</h1>
+<p>我选择了一篇我之前了解过的方向的论文进行阅读，发现它所生成的论文存在一些问题，最大的问题是抄袭，他的很思路和想法来自其他论文，我猜测他的大模型应该很难区分参考和创新的边界，导致把参考当成了创新。</p>
+<p>想要真正的用来产出论文还是存在很多问题，如果作为一个辅助应该是很好的</p>
+</body>
+</html>
