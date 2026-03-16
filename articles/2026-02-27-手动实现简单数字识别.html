@@ -17,6 +17,7 @@
         blockquote { border-left: 3px solid #d4c4c0; margin: 25px 0; padding: 15px 25px; background-color: #faf5f0; border-radius: 0 8px 8px 0; }
         mjx-container { display: block !important; text-align: center !important; margin: 20px auto !important; }
     </style>
+    
 <meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
 <title>手动实现简单数字识别</title>
 </head>
@@ -29,6 +30,9 @@
             <a href="../about.html" style="text-decoration: none; color: #8a7f7d;">About</a>
         </nav>
     </header>
+
+
+    
 <h1 id='dqn'>DQN</h1>
 <p>之前使用Qlearning玩像素鸟，发现怎么样都卡在了10多分，试了各种超参数优化的算法，后面我发现我用的环境给的参数有问题，所以一直训练不好。改用DQN吧</p>
 <p>DQN能解决维度灾难的问题，用神经网络来代替原先的Q表，神经网络能拟合输入和输出，假如把游戏图像输入让它预测n个值，这n个值就代表了n个action的得分。但是训练的时候可能不如Qlearning这么直观。</p>
@@ -425,6 +429,9 @@ if __name__ == &quot;__main__&quot;:
             print(f&quot;{j} incorrect&quot;)
 </code></pre>
 <p>&nbsp;</p>
+
+    
+
 
     <footer style="margin-top: 60px; padding-top: 30px; border-top: 1px solid #e8e0d8; text-align: center; color: #a0908d; font-size: 0.85em;">
         <p>&copy; 2026 Zephyr. All rights reserved.</p>
