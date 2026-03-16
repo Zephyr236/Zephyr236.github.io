@@ -8,7 +8,7 @@ template_file = "index.template.html"
 output_file = "index.html"
 
 # CSS style to add to each article
-css_style = '''<link rel="stylesheet" href="assets/css/style.css">
+css_style = '''<link rel="stylesheet" href="../css/style.css">
     <style>
         body { max-width: 800px; margin: 0 auto; padding: 40px 20px; background: linear-gradient(135deg, #fdfbf7 0%, #faf5f0 100%); min-height: 100vh; }
         h1, h2, h3 { font-family: 'Lora', Georgia, serif; color: #4a4a4a; }
