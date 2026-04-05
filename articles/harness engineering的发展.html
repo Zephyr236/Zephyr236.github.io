@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+<title>harness engineering的发展</title>
+</head>
+<body><h1 id='harness-engineering'>harness engineering</h1>
+<p>最近新出了一个词，叫harness engineering(驾驭工程)。到处都在炒一个概念，需要了解一下。</p>
+<p>&nbsp;</p>
+<blockquote><p>LangChain 的案例尤其有说服力：底层模型一个参数都没动，<strong>仅仅通过优化外部驾驭环境</strong>（文档结构、验证回路、追踪系统），编码 Agent 在 Terminal Bench 2.0 的得分从 52.8% 飙升至 66.5%，全球排名从第 30 位跃升至第 5 位。五个独立团队也得出了相同结论：<strong>瓶颈不在模型智能，而在基础设施。</strong></p>
+</blockquote>
+<p>一个例子，关于harness engineering的效果。</p>
+<p>&nbsp;</p>
+<h2 id='发展过程'>发展过程</h2>
+<p>刚出大模型大家都在学习<strong>prompt engineering</strong>(提示词工程)，人们相信只需要把问题描述的很清楚，大模型就是解决问题。当时主要是思路很简单。提供清晰的指令、给出任务示例（Few-shot Learning）、指定输出格式、使用思维链（Chain-of-Thought）提示等。</p>
+<p>但是他没有解决需要多步骤、多信息源或长期记忆的复杂任务。</p>
+<p>&nbsp;</p>
+<p>由此发展出来了<strong>Context Engineering</strong>(上下文工程)</p>
+<p>复杂任务需要模型了解特定的知识、获取实时信息、历史对话，并能调用计算、搜索外部功能。Prompt本身无法承载所有这些。由此发展出来了检索增强生成（RAG）、工具调用（Function Calling）和智能上下文窗口管理的思想</p>
+<p>但是依然存在着一些问题随着任务流程变长，如何协调模型在不同步骤的决策、保证流程的稳定可靠，成为了新问题</p>
+<p>&nbsp;</p>
+<p>由此发展出来了<strong>Harness Engineering</strong>(驾驭工程)</p>
+<p>如何设计和控制系统，让一个或多个模型像“智能体”一样自主、可靠地完成多步骤的复杂目标？</p>
+<p>构建一个“驾驭”或“编排”层，将LLM作为核心决策引擎，嵌入到由规划、执行、记忆、评估等模块组成的闭环系统中,例如规划-执行-反思循环、多智能体协作和工作流与状态管理</p>
+<p>&nbsp;</p>
+<p>内心吐槽：这不等于没发展吗？最终还是需要参考workflow那种方式，很多人也都是这样干的啊，又造出来一个新的名词.......</p>
+<p>&nbsp;</p>
+<h2 id='什么是有用的设计'>什么是有用的设计?</h2>
+<p><img src="./assets/image-20260405133154938.png" alt="image-20260405133154938"></p>
+<p><code>harness-design-long-running-apps</code>由anthropic所发布的一篇文章，其中提出了一个很朴素的方法，来判断agent设计中哪些是有用的哪些是没有用的。</p>
+<p>&nbsp;</p>
+<p>将agent设计中的一部分逐一剔除，观察变化来判断设计的合理性，也就是所谓的消融实验，这个并不难想到难的是全面，可能某一个设计在A任务下是有用的，在B任务下又是没有用的，所以难点在于如何全面的设计，这篇文章也没有给出。</p>
+<p>&nbsp;</p>
+<h2 id='总结'>总结</h2>
+<p>没有什么很特别的东西，所有人都是这样干的(例如之前的FARS智能科研系统)，但是之前没人造出来一个新的概念新的词。</p>
+</body>
+</html>
