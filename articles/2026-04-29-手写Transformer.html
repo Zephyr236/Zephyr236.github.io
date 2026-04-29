@@ -1,0 +1,170 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+<title>2026-04-29-手写Transformer</title>
+</head>
+<body><h1 id='手写transformer'>手写Transformer</h1>
+<h2 id='过程'>过程</h2>
+<p>我看了各种各样的教程，听他们讲transformer听完了真的感觉浪费时间，实际上还是神经网络那一套，他们把大量的时间花费在吹捧词嵌入、注意力机制上，实际上不如直接讲有哪些权重的可以调整的。如果要简单的说transformer就是用某种方式让每一个词带上了其他所有词的特征，然后过了一遍神经网络。因为每一个词都带上了其他所有词的特征所以在神经网络拟合的过程中自然而然的就会考虑上一段话的上下文信息了。然后每次预测下一个词，再把下一个词追加到输入，不断循环预测。这就是transformer了。</p>
+<p>&nbsp;</p>
+<p>预测过程：</p>
+<ol start='' >
+<li>文本先切成token</li>
+<li>每个token通过一个大嵌入矩阵（Embedding Table），该矩阵可以训练</li>
+<li>加上位置编码（Positional Encoding），不同模型用的位置编码不一样，只要能携带位置信息就行，并且是唯一的</li>
+<li>对每个token，模型用三个可学习的权重矩阵Q K V</li>
+<li>每个token的Q跟所有token的K做点积（再缩放、softmax），得到一个权重分布（注意力权重）</li>
+<li>用这些权重对所有V做加权求和，这里是多头并行的</li>
+<li>然后就开始过神经网络得到输出了</li>
+
+</ol>
+<p>&nbsp;</p>
+<p>反向传播(训练)的过程：</p>
+<p>那一段文本，假设有N个token，输入N-1个token，然后预测第N个，得到loss，然后计算梯度，梯度的计算包含上面所有的权重，然后就老老实实反向传播就行了。</p>
+<p>&nbsp;</p>
+<h2 id='pytorch'>pytorch</h2>
+<p>上面的核心其实还是神经网络，我试试能不能就用pytorch中提供的最基础神经网络来实现一个transformer</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260429164410471.png" alt="image-20260429164410471"></p>
+<pre><code>https://github.com/karpathy/nanogpt
+</code></pre>
+<p>这个项目刚好符合我的需求，如果理解的比较快，应该能在今天之内学完，预计学习时间不会超过2天。接下来所有的代码都是抄的这个项目</p>
+<p>&nbsp;</p>
+<h1 id='transformer'>Transformer</h1>
+<p>我先用其中最简单的方式实现一个最简单的transformer，实现一个简单的transformer后再开始解析nanoGPT不然看不懂</p>
+<h2 id='分词'>分词</h2>
+<p>nanogpt中包含了两种分词方式，分别是是字符级别的分词和使用openai的tiktoken，也就是一个字符就是一个token</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260429164427277.png" alt="image-20260429164427277"></p>
+<p>先计算词表的大小，然后初始化两个字典，这两个字典的作用就是把字符转成数字和把数字转成字符。差不多就是ascii表</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260429164441931.png" alt="image-20260429164441931"></p>
+<p>然后我们就将文本转为了token，这里是28维的一个向量</p>
+<p>&nbsp;</p>
+<h2 id='词嵌入'>词嵌入</h2>
+<p><img src="./assets/image-20260429164452820.png" alt="image-20260429164452820"></p>
+<p>经过词嵌入后，就能把每一个token都映射到一个64维的空间中，最终得到28*64的矩阵</p>
+<p>&nbsp;</p>
+<h2 id='位置编码'>位置编码</h2>
+<p><img src="./assets/image-20260429164503579.png" alt="image-20260429164503579"></p>
+<p>这里还是采用了嵌入矩阵的方式生成位置编码，我感觉应该什么都可以只要是唯一的就行了，这里长度最大为256。</p>
+<p>和上面的词嵌入的区别是，上面是把token组成的向量输入了，这里是把[0,1,2,...,28]给输入了，用这种方式来生成唯一的位置信息。</p>
+<p>attention 是采用正余弦的方式来计算的位置编码。</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260429164511043.png" alt="image-20260429164511043"></p>
+<p>最后再把词嵌入矩阵和位置编码矩阵相加即可。</p>
+<p>&nbsp;</p>
+<h2 id='自注意力机制'>自注意力机制</h2>
+<p>这是整个transformer的核心。</p>
+<h3 id='单头自注意力机制'>单头自注意力机制</h3>
+<p><img src="./assets/image-20260429164521195.png" alt="image-20260429164521195"></p>
+<p>初始化三个矩阵key，query，value，然后x左乘这三个矩阵，为什么要这样子乘？没有人知道，一堆人给了各种各样奇怪的解释，我感觉都是编出来的。</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260429164528538.png" alt="image-20260429164528538"></p>
+<p>然后就是一系列运算了，其中能解释的就算第二行的缩放，第三行的归一化。其他的也不知道为什么要这样乘，反正相互之间必须有关系。</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260429164535277.png" alt="image-20260429164535277"></p>
+<p>经过这样子的注意力机制后，就得到了这28就分别包含了位置信息，和其他token的某种关联。</p>
+<p>&nbsp;</p>
+<h3 id='因果掩码'>因果掩码</h3>
+<p>上面这样子最终也能进行训练，输入t预测t+1,但是这样子就变成串行了，无法并行运算。</p>
+<p>&nbsp;</p>
+<pre><code>  x = [&quot;我&quot;, &quot;今天&quot;, &quot;去&quot;, &quot;了&quot;]     ← 输入
+  y = [&quot;今天&quot;, &quot;去&quot;, &quot;了&quot;, &quot;学校&quot;]   ← 输出
+</code></pre>
+<p>训练的时候，输入输出需要是等长的</p>
+<p>&nbsp;</p>
+<pre><code>输入&quot;我&quot;    → 输出一个 [vocab_size] 概率分布 → 最大概率的词应该是 &quot;今天&quot;
+输入&quot;我 今天&quot; → 输出一个 [vocab_size] 概率分布 → 最大概率的词应该是 &quot;去&quot;
+输入&quot;我 今天 去&quot; → 输出一个 [vocab_size] 概率分布 → 最大概率的词应该是 &quot;了&quot;
+输入&quot;我 今天 去 了&quot; → 输出一个 [vocab_size] 概率分布 → 最大概率的词应该是 &quot;学校&quot;
+</code></pre>
+<p>上面是训练时候的输入和输出，通过这种方式计算loss。这样子就能输入一个超大的矩阵，进行并行计算了。</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260429164607037.png" alt="image-20260429164607037"></p>
+<p>生成一个下三角的矩阵，最终使得attn_logits也是一个下三角矩阵。为什么选择attn_logits矩阵，因为Q K相乘得到一个方阵，这个方阵中包含了一个token对其他所有token的某种关联，弄成下三角后，就相当于遮住了这种关联。</p>
+<p>然后再和V相乘,也不知道为啥，可能是为了防止掩码后token的信息完全丢失。</p>
+<p>&nbsp;</p>
+<h3 id='多头注意力'>多头注意力</h3>
+<p><img src="./assets/image-20260429164631189.png" alt="image-20260429164631189"></p>
+<p>就是把之前的Q K V给拆开了，然后</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260429164638229.png" alt="image-20260429164638229"></p>
+<p>然后和之前的单头自主注意力机制一样，一样Q K，然后过一层mask，然后再拼回去。这个多头注意力机制一大堆乱七八糟的解释，我感觉主要就是为了能发挥GPU并行计算的优势。</p>
+<p>&nbsp;</p>
+<h3 id='kv-cache'>KV cache</h3>
+<p>调用大模型api的时候，经常会出现命中缓存，这个缓存实际上就是K V矩阵。</p>
+<p>每次需要推理下一个token，K V都是重复的，只需要计算新的token的K V然后拼接上去上一个即可。</p>
+<p>为什么不用缓存Q，因为生成过程的核心区别，训练时需要为序列里每个 token 算 Q，推理时只需要为最后一个新 token 算 Q。</p>
+<p>推理过程中Q只需要当前的。</p>
+<p>&nbsp;</p>
+<h2 id='残差连接residual-connectionlayernormmlp'>残差连接（Residual Connection）+LayerNorm+MLP</h2>
+<p>残差连接: 神经网络在反向传播的时候只会计算梯度，会导致梯度消失的问题。现在不仅仅计算梯度，在此基础上把输入也加上了</p>
+<p>层归一化(LayerNorm): 就是把输入的向量一起都归一化了</p>
+<p>MLP:多层感知机，就是神经网络</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260429164648035.png" alt="image-20260429164648035"></p>
+<p>创建一个层归一化</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260429164655523.png" alt="image-20260429164655523"></p>
+<p>先残差然后再归一化</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260429164702212.png" alt="image-20260429164702212"></p>
+<p>然后再过一层神经网络</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260429164708819.png" alt="image-20260429164708819"></p>
+<p>然后神经网络的结果再残差，然后过第二层归一化</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260429164715419.png" alt="image-20260429164715419"></p>
+<p>与普通归一化不同的是，归一化完以后会多一个权重和偏置，这样子训练的时候也会调整层归一化的参数，训练过程中，模型自己学会&quot;哪些特征需要放大、哪些需要平移&quot;。</p>
+<p>&nbsp;</p>
+<p>上面最终得到的输出，还要再经历多遍从多头注意力机制的过程</p>
+<p><img src="./assets/image-20260429164721740.png" alt="image-20260429164721740"></p>
+<p>这里最终补充上了3次这样的循环，又叫block。</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260429164729411.png" alt="image-20260429164729411"></p>
+<p>最终输出的将会是一个28*64的矩阵，也就是28个token深度理解后的结果</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260429164736236.png" alt="image-20260429164736236"></p>
+<p> 对每个 token 的 64 维向量，乘以这个线性层，得到 vocab_size 个得分。最终得到的是28*16的矩阵，也就是以第一行为例子代表着第一个token对下一个词预测的概率分布。</p>
+<p>&nbsp;</p>
+<p>由此就完成了一次前向传播。</p>
+<p>&nbsp;</p>
+<h2 id='损失'>损失</h2>
+<p>接下来需要计算损失</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260429164747330.png" alt="image-20260429164747330"></p>
+<p>正确的预测结果应该是，第一个token能预测出来第二个，以此类推。最后一个填写-1表示不算</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260429164754602.png" alt="image-20260429164754602"></p>
+<p>然后使用cross_entropy计算损失，这个损失不是反向传播中的损失，就是一个值判断效果的。</p>
+<p>&nbsp;</p>
+<h2 id='反向传播'>反向传播</h2>
+<p>上面这个过程是无法使用pytorch自带的反向传播的，还是得重新封装一遍</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260429164806756.png" alt="image-20260429164806756"></p>
+<p>将所有的参数收集起来，并创建优化器，写到这里反向传播的过程基本上的结束了</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h2 id='训练'>训练</h2>
+<p><img src="./assets/image-20260429164823052.png" alt="image-20260429164823052"></p>
+<p>将上文的前向传播写成一个函数</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260429164830108.png" alt="image-20260429164830108"></p>
+<p>然后循环前向传播和优化器更新的过程就是训练了</p>
+<p>&nbsp;</p>
+<h2 id='效果'>效果</h2>
+<p><img src="./assets/image-20260429164837642.png" alt="image-20260429164837642"></p>
+<p>这里输入的是这样一段英文</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260429164844724.png" alt="image-20260429164844724"></p>
+<p>然后循环训练2000次，都是同一段文本</p>
+<p>&nbsp;</p>
+<p><img src="./assets/image-20260429164852077.png" alt="image-20260429164852077"></p>
+<p>然后输入hello，前向传播生成文本。</p>
+<p>&nbsp;</p>
+<h1 id='总结'>总结</h1>
+<p>这个是一个很基础很基础的transformer的学习，还没有涉及到MOE和基于RLHF。只是为了理解基于transformer的各种各样框架打下一个小小的基础。</p>
+</body>
+</html>
